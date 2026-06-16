@@ -1,0 +1,30 @@
+# Visual Studio
+.vs/
+Debug/
+x64/
+Release/
+*.user
+*.suo
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.opendb
+
+# Build outputs
+*.exe
+*.dll
+*.pdb
+*.ilk
+*.obj
+*.tlog
+*.lastbuildstate
+*.idb
+*.res
+*.aps
+*.log
+*.trx
+
+# Generated
+MFCApplication3/*/Debug/
+MFCApplication3/*/x64/
+MFCApplication3/*/Release/
