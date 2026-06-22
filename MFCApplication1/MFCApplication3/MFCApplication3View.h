@@ -4,32 +4,34 @@
 
 #pragma once
 
-#include <stack>
 
 class CMFCApplication3View : public CView
 {
-protected:
+protected: // 仅从序列化创建
 	CMFCApplication3View() noexcept;
 	DECLARE_DYNCREATE(CMFCApplication3View)
 
+// 特性
 public:
 	CMFCApplication3Doc* GetDocument() const;
 
-// 属性
-	COLORREF m_boundaryColor;   // 边界颜色
-	COLORREF m_fillColor;       // 填充颜色
-	BOOL m_filled;              // 是否已填充
-	CPoint m_polygon[5];        // 五边形顶点
-	int m_vertexCount;          // 顶点数量
+// 操作
+public:
+
+// 重写
+	COLORREF lineColor;       // 线条颜色
+
+	int m_drawType;           // 当前绘制类型: 0=无, 1=直线, 2=矩形, 3=椭圆
 
 public:
-	virtual void OnDraw(CDC* pDC);
+	virtual void OnDraw(CDC* pDC);  // 重写以绘制该视图
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 protected:
 	virtual BOOL OnPreparePrinting(CPrintInfo* pInfo);
 	virtual void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo);
 	virtual void OnEndPrinting(CDC* pDC, CPrintInfo* pInfo);
 
+// 实现
 public:
 	virtual ~CMFCApplication3View();
 #ifdef _DEBUG
@@ -37,21 +39,16 @@ public:
 	virtual void Dump(CDumpContext& dc) const;
 #endif
 
-protected:
-	void DrawPolygon(CDC* pDC);                              // 绘制多边形边界
-	void ScanLineFill(CDC* pDC, CPoint seed);                // 扫描线种子填充
-	void FindAndPushSeeds(CDC* pDC, int xl, int xr, int y,
-		std::stack<CPoint>& stk);                            // 扫描邻行找新种子
-
+// 生成的消息映射函数
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
-	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
-	afx_msg void OnFillReset();
-	afx_msg void OnBoundaryColor();
+	afx_msg void OnDrawLine();
+	afx_msg void OnDrawRect();
+	afx_msg void OnDrawEllipse();
 };
 
-#ifndef _DEBUG
+#ifndef _DEBUG  // MFCApplication3View.cpp 中的调试版本
 inline CMFCApplication3Doc* CMFCApplication3View::GetDocument() const
    { return reinterpret_cast<CMFCApplication3Doc*>(m_pDocument); }
 #endif

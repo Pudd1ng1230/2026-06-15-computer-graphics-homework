@@ -4,23 +4,23 @@
 
 #pragma once
 
-#include <stack>
 
 class CMFCApplication3View : public CView
 {
-protected:
+protected: // 仅从序列化创建
 	CMFCApplication3View() noexcept;
 	DECLARE_DYNCREATE(CMFCApplication3View)
 
+// 特性
 public:
 	CMFCApplication3Doc* GetDocument() const;
 
-// 属性
-	COLORREF m_boundaryColor;   // 边界颜色
-	COLORREF m_fillColor;       // 填充颜色
-	BOOL m_filled;              // 是否已填充
-	CPoint m_polygon[5];        // 五边形顶点
-	int m_vertexCount;          // 顶点数量
+// 操作
+public:
+
+// 重写
+	COLORREF lineColor;       // 线条颜色
+	int m_algoType;           // 当前算法: 0=无, 1=DDA, 2=中点, 3=Bresenham
 
 public:
 	virtual void OnDraw(CDC* pDC);
@@ -30,6 +30,7 @@ protected:
 	virtual void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo);
 	virtual void OnEndPrinting(CDC* pDC, CPrintInfo* pInfo);
 
+// 实现
 public:
 	virtual ~CMFCApplication3View();
 #ifdef _DEBUG
@@ -38,17 +39,19 @@ public:
 #endif
 
 protected:
-	void DrawPolygon(CDC* pDC);                              // 绘制多边形边界
-	void ScanLineFill(CDC* pDC, CPoint seed);                // 扫描线种子填充
-	void FindAndPushSeeds(CDC* pDC, int xl, int xr, int y,
-		std::stack<CPoint>& stk);                            // 扫描邻行找新种子
+	// 三种直线扫描算法
+	void DrawDDA(CDC* pDC, int x1, int y1, int x2, int y2);
+	void DrawMidpoint(CDC* pDC, int x1, int y1, int x2, int y2);
+	void DrawBresenham(CDC* pDC, int x1, int y1, int x2, int y2);
 
+// 生成的消息映射函数
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
-	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
-	afx_msg void OnFillReset();
-	afx_msg void OnBoundaryColor();
+	afx_msg void OnDDA();
+	afx_msg void OnMidpoint();
+	afx_msg void OnBresenham();
+	afx_msg void OnLineColor();
 };
 
 #ifndef _DEBUG

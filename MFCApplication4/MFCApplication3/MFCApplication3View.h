@@ -1,27 +1,19 @@
 ﻿
-// MFCApplication3View.h: CMFCApplication3View 类的接口
-//
+// MFCApplication3View.h
 
 #pragma once
 
-#include <stack>
 
 class CMFCApplication3View : public CView
 {
 protected:
 	CMFCApplication3View() noexcept;
 	DECLARE_DYNCREATE(CMFCApplication3View)
-
 public:
 	CMFCApplication3Doc* GetDocument() const;
-
-// 属性
-	COLORREF m_boundaryColor;   // 边界颜色
-	COLORREF m_fillColor;       // 填充颜色
-	BOOL m_filled;              // 是否已填充
-	CPoint m_polygon[5];        // 五边形顶点
-	int m_vertexCount;          // 顶点数量
-
+	CPoint m_original[5], m_current[5];
+	int m_vertexCount;
+	BOOL m_transformed;
 public:
 	virtual void OnDraw(CDC* pDC);
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
@@ -29,26 +21,23 @@ protected:
 	virtual BOOL OnPreparePrinting(CPrintInfo* pInfo);
 	virtual void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo);
 	virtual void OnEndPrinting(CDC* pDC, CPrintInfo* pInfo);
-
 public:
 	virtual ~CMFCApplication3View();
 #ifdef _DEBUG
 	virtual void AssertValid() const;
 	virtual void Dump(CDumpContext& dc) const;
 #endif
-
 protected:
-	void DrawPolygon(CDC* pDC);                              // 绘制多边形边界
-	void ScanLineFill(CDC* pDC, CPoint seed);                // 扫描线种子填充
-	void FindAndPushSeeds(CDC* pDC, int xl, int xr, int y,
-		std::stack<CPoint>& stk);                            // 扫描邻行找新种子
-
+	void DrawPolygon(CDC* pDC, CPoint* pts, COLORREF color, int width);
+	CPoint GetCentroid(CPoint* pts, int count);
+	void ApplyMatrix(double m[3][3]);
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
-	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
-	afx_msg void OnFillReset();
-	afx_msg void OnBoundaryColor();
+	afx_msg void OnTransformTranslate();
+	afx_msg void OnTransformScale();
+	afx_msg void OnTransformRotate();
+	afx_msg void OnTransformReset();
 };
 
 #ifndef _DEBUG
