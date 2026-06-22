@@ -1,45 +1,29 @@
-﻿
-// MFCApplication3View.h: CMFCApplication3View 类的接口
-//
+﻿// MFCApplication3View.h
 
 #pragma once
 
-
 class CMFCApplication3View : public CView
 {
-protected: // 仅从序列化创建
+protected:
 	CMFCApplication3View() noexcept;
 	DECLARE_DYNCREATE(CMFCApplication3View)
-
-// 特性
 public:
 	CMFCApplication3Doc* GetDocument() const;
 
-// 操作
-public:
-
-// 重写
-	COLORREF lineColor;
-
-	int drawtype;
-	CPoint beginPoint, movePoint;
-
-	// 实验3：双缓冲动画
-	CPoint m_ballCenter;      // 小球圆心
-	int m_dx;                 // X方向运动速度
-	int m_dy;                 // Y方向运动速度
-	BOOL m_isPlaying;         // 播放状态
-	UINT_PTR m_nTimerID;      // 定时器ID
+	int m_mode;
+	COLORREF m_lineColor, m_fillColor, m_boundColor;
+	BOOL m_filled; CPoint m_poly[6]; int m_nPoly;
+	CPoint m_orig[5], m_cur[5]; int m_nVert; BOOL m_trans;
+	CPoint m_pt1, m_pt2; BOOL m_drawing;
+	CPoint m_bez[4]; int m_nBez;
 
 public:
-	virtual void OnDraw(CDC* pDC);  // 重写以绘制该视图
+	virtual void OnDraw(CDC* pDC);
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 protected:
-	virtual BOOL OnPreparePrinting(CPrintInfo* pInfo);
-	virtual void OnBeginPrinting(CDC* pDC, CPrintInfo* pInfo);
-	virtual void OnEndPrinting(CDC* pDC, CPrintInfo* pInfo);
-
-// 实现
+	virtual BOOL OnPreparePrinting(CPrintInfo*);
+	virtual void OnBeginPrinting(CDC*, CPrintInfo*);
+	virtual void OnEndPrinting(CDC*, CPrintInfo*);
 public:
 	virtual ~CMFCApplication3View();
 #ifdef _DEBUG
@@ -47,32 +31,28 @@ public:
 	virtual void Dump(CDumpContext& dc) const;
 #endif
 
-protected:
-
-	// 实验3：双缓冲动画辅助函数
-	void DoubleBuffer(CDC* pDC);
-	void DrawObject(CDC* pDC, const CRect& rect);
-	void BorderTest(const CRect& rect);
-
-// 生成的消息映射函数
-protected:
+	afx_msg void OnDrawLine();
+	afx_msg void OnDrawRect();
+	afx_msg void OnDrawEllipse();
+	void DDALine(CDC*,int,int,int,int);
+	void MidLine(CDC*,int,int,int,int);
+	void BresLine(CDC*,int,int,int,int);
+	afx_msg void OnDDA(); afx_msg void OnMidpoint(); afx_msg void OnBresenham();
+	void MidCircle(CDC*,int,int,int); afx_msg void OnCircle();
+	void DrawPoly(CDC*,CPoint*,int,COLORREF);
+	void ScanFill(CDC*,CPoint); void EdgeFill(CDC*,CPoint,COLORREF,COLORREF);
+	BOOL InsidePoly(CPoint*,int,CPoint); void PolyFill(CDC*,CPoint);
+	afx_msg void OnFillScan(); afx_msg void OnFillEdge(); afx_msg void OnFillPoly();
+	afx_msg void OnLButtonDown(UINT,CPoint); afx_msg void OnMouseMove(UINT,CPoint); afx_msg void OnLButtonUp(UINT,CPoint);
+	CPoint Centroid(CPoint*,int); void ApplyMat(double[3][3]);
+	afx_msg void OnTransTranslate(); afx_msg void OnTransScale();
+	afx_msg void OnTransRotate(); afx_msg void OnTransReset();
+	afx_msg void OnFreeLine(); afx_msg void OnFreeCircle();
+	void BezierCurve(CDC*,CPoint*,int); afx_msg void OnBezier();
+	afx_msg void OnColorLine(); afx_msg void OnColorFill();
 	DECLARE_MESSAGE_MAP()
-public:
-	afx_msg void OnSuanfaDda();
-	afx_msg void OnLineColor();
-	afx_msg void OnSuanfaZhongdian();
-	afx_msg void OnSuanfaBresenham();
-	afx_msg void OnSuanfaZhongdianyuan();
-	afx_msg void OnShouhuiJuxing();
-	afx_msg void OnShouhuiYuanxing();
-	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
-	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
-	afx_msg void OnShouhuiZhixian();
-	afx_msg void OnTuxingPlay();
-	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };
-
-#ifndef _DEBUG  // MFCApplication3View.cpp 中的调试版本
+#ifndef _DEBUG
 inline CMFCApplication3Doc* CMFCApplication3View::GetDocument() const
    { return reinterpret_cast<CMFCApplication3Doc*>(m_pDocument); }
 #endif
